@@ -1,18 +1,10 @@
 /*!
- * keygrip
+ * Based on https://github.com/crypto-utils/keygrip/blob/master/index.js
  * Copyright(c) 2011-2014 Jed Schmidt
  * Copyright(c) 2020 Christian Norrman
  * MIT Licensed
  */
-
-import { HmacSha256, HmacSha512 } from './deps.ts';
-
-const SANITIZE_REGEXP = /\/|\+|=/g;
-const SANITIZE_REPLACERS = {
-  "/": "_",
-  "+": "-",
-  "=": "",
-} as Record<string, string>;
+import { HmacSha256, HmacSha512, base64url } from './deps.ts';
 
 export enum Algorithm {
   SHA256 = 'sha256',
@@ -21,10 +13,9 @@ export enum Algorithm {
 
 export class Keygrip {
   #keys: string[];
-  #decoder: TextDecoder;
   #algo: Algorithm;
 
-  constructor(keys: string[], algo: Algorithm=Algorithm.SHA256, enc: string='base64') {
+  constructor(keys: string[], algo: Algorithm=Algorithm.SHA256) {
     if (!keys || !keys.length) {
       throw new Error('Keys must be provided.');
     } else if (algo != 'sha256' && algo != 'sha512') {
@@ -33,7 +24,6 @@ export class Keygrip {
 
     this.#keys = keys;
     this.#algo = algo;
-    this.#decoder = new TextDecoder(enc);
   }
 
   sign(data: string, key?: string): string {
@@ -47,13 +37,10 @@ export class Keygrip {
       const hash = new HmacSha512(key);
       buffer = hash.update(data).arrayBuffer();
     } else {
-      // Required for typescript
       throw new Error('Algorithm invalid');
     }
 
-    return this.#decoder
-      .decode(buffer)
-      .replace(SANITIZE_REGEXP, s => SANITIZE_REPLACERS[s]);
+    return base64url.encode(buffer);
   }
 
   verify(data: string, digest: string): boolean {
@@ -61,6 +48,16 @@ export class Keygrip {
   }
 
   index(data: string, digest: string): number {
-    return this.#keys.findIndex(key => digest === this.sign(data, key));
+    return this.#keys.findIndex(key => this.compare(digest, this.sign(data, key)));
+  }
+
+  // Timing safe compare using Brad Hill's Double HMAC pattern
+  private compare(a: string, b: string): boolean {
+    const key = crypto.getRandomValues(new Uint8Array(32));
+    const hmac = new HmacSha256(key);
+    const ah = hmac.update(a).digest();
+    const bh = hmac.update(b).digest();
+
+    return ah.length === bh.length && ah.every((x, i) => x === bh[i]);
   }
 }

@@ -1,9 +1,9 @@
-name: media_typer-ci
+name: keygrip-ci
 
 on: [push, pull_request]
 
 jobs:
-  media_typer:
+  ci:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

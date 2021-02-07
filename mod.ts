@@ -61,7 +61,7 @@ export class Keygrip {
         break;
     }
 
-    return base64url.encode(buf);
+    return base64url.encode(new Uint8Array(buf));
   }
 
   /**

@@ -1,7 +1,7 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@v0.57.0/testing/asserts.ts";
+} from "https://deno.land/std@0.86.0/testing/asserts.ts";
 import { Keygrip, Algorithm } from "./mod.ts";
 const { test } = Deno;
 

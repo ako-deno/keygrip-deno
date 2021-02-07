@@ -4,7 +4,7 @@
  * Copyright(c) 2020 Christian Norrman
  * MIT Licensed
  */
-import { HmacSha256, HmacSha512, base64url } from "./deps.ts";
+import { base64url, HmacSha256, HmacSha512 } from "./deps.ts";
 
 /**
  * Enum of supported algorithms for keygrip

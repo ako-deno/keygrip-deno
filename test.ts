@@ -1,8 +1,8 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@v0.57.0/testing/asserts.ts";
-import { Keygrip, Algorithm } from "./mod.ts";
+} from "https://deno.land/std@0.86.0/testing/asserts.ts";
+import { Algorithm, Keygrip } from "./mod.ts";
 const { test } = Deno;
 
 const keygrip = new Keygrip(["secret", "key", "right?"]);
